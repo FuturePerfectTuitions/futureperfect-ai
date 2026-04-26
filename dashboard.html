@@ -46,6 +46,106 @@
   font-weight:800;
   font-size:13px;
 }
+    .aiTutorPanel{
+  margin-top:18px;
+  display:none;
+  text-align:left;
+  border-top:1px solid rgba(0,0,0,0.08);
+  padding-top:16px;
+}
+
+.aiTutorPanel.on{
+  display:block;
+}
+
+.aiTutorHeader{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:12px;
+}
+
+.aiTutorTitle{
+  font-weight:900;
+  color:var(--blue);
+  font-size:18px;
+}
+
+.aiTutorMessages{
+  background:#f8fafc;
+  border:1px solid rgba(0,0,0,0.08);
+  border-radius:16px;
+  padding:14px;
+  min-height:120px;
+  max-height:320px;
+  overflow-y:auto;
+}
+
+.aiMsg{
+  padding:12px 14px;
+  border-radius:14px;
+  margin:10px 0;
+  line-height:1.5;
+  font-weight:700;
+  white-space:pre-line;
+}
+
+.aiMsgBot{
+  background:#fff;
+  color:var(--text);
+  border:1px solid rgba(1,33,105,0.10);
+}
+
+.aiMsgUser{
+  background:var(--blue);
+  color:#fff;
+  margin-left:40px;
+}
+
+.aiTutorInputRow{
+  display:flex;
+  gap:10px;
+  margin-top:12px;
+  align-items:stretch;
+}
+
+.aiTutorInput{
+  flex:1;
+  resize:vertical;
+  min-height:70px;
+  border-radius:14px;
+  border:1px solid rgba(0,0,0,0.12);
+  padding:12px;
+  font-size:15px;
+  font-family:inherit;
+  font-weight:700;
+}
+
+.aiTutorSend{
+  border:none;
+  cursor:pointer;
+  font-weight:900;
+  border-radius:14px;
+  padding:0 22px;
+  background:var(--red);
+  color:#fff;
+  font-size:15px;
+}
+
+@media (max-width: 640px){
+  .aiTutorInputRow{
+    flex-direction:column;
+  }
+
+  .aiTutorSend{
+    padding:14px 18px;
+  }
+
+  .aiMsgUser{
+    margin-left:0;
+  }
+}
     /* ALWAYS keep the greeting on ONE line */
   #dashTitle{
   font-size: clamp(18px, 2.0vw, 26px);
@@ -538,6 +638,29 @@
   </button>
   <div class="aiTutorSub">
     24/7 support for Maths, English and Verbal Reasoning
+  </div>
+
+  <div id="aiTutorPanel" class="aiTutorPanel" aria-hidden="true">
+    <div class="aiTutorHeader">
+      <div class="aiTutorTitle">Your Personal AI Tutor</div>
+      <button class="btnPlain" type="button" onclick="toggleAITutor()">Close</button>
+    </div>
+
+    <div id="aiTutorMessages" class="aiTutorMessages">
+      <div class="aiMsg aiMsgBot">
+        Hello, I’m your Future Perfect AI Tutor. Ask me about Maths, English, Verbal Reasoning, homework, or your lessons.
+      </div>
+    </div>
+
+    <div class="aiTutorInputRow">
+      <textarea
+        id="aiTutorInput"
+        class="aiTutorInput"
+        rows="3"
+        placeholder="Type your question here..."
+      ></textarea>
+      <button class="aiTutorSend" type="button" onclick="sendAITutorMessage()">Send</button>
+    </div>
   </div>
 </div>
       <!-- HELP VIDEO (opens under greeting) -->
@@ -1176,7 +1299,42 @@ a.innerHTML = desc
       }
     }
 function toggleAITutor(){
-  alert("Your Personal AI Tutor is coming soon.");
+  const panel = document.getElementById("aiTutorPanel");
+  const isOpen = panel.classList.contains("on");
+
+  panel.classList.toggle("on", !isOpen);
+  panel.setAttribute("aria-hidden", isOpen ? "true" : "false");
+
+  if (!isOpen) {
+    panel.scrollIntoView({ behavior:"smooth", block:"start" });
+    setTimeout(() => {
+      document.getElementById("aiTutorInput").focus();
+    }, 250);
+  }
+}
+
+function addAIMessage(text, who){
+  const messages = document.getElementById("aiTutorMessages");
+  const div = document.createElement("div");
+  div.className = who === "user" ? "aiMsg aiMsgUser" : "aiMsg aiMsgBot";
+  div.textContent = text;
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function sendAITutorMessage(){
+  const input = document.getElementById("aiTutorInput");
+  const question = input.value.trim();
+
+  if (!question) return;
+
+  addAIMessage(question, "user");
+  input.value = "";
+
+  addAIMessage(
+    "I’m nearly ready to help. The chat box is now working, and the AI connection will be added next.",
+    "bot"
+  );
 }
     (async () => {
       try {

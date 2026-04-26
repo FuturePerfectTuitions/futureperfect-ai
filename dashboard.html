@@ -1322,7 +1322,6 @@ function addAIMessage(text, who){
   messages.scrollTop = messages.scrollHeight;
 }
 
-<script>
 async function sendAITutorMessage(){
   const input = document.getElementById("aiTutorInput");
   const question = input.value.trim();
@@ -1360,7 +1359,7 @@ async function sendAITutorMessage(){
     addAIMessage("Sorry, I could not connect right now.", "bot");
   }
 }
-</script>
+
     (async () => {
       try {
         await buildDashboard();

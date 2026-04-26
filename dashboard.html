@@ -12,7 +12,40 @@
 
   <style>
     /* Dashboard layout (uses your existing shared.css look) */
+.aiTutorBox{
+  width:min(860px, 96%);
+  margin:18px auto 8px;
+  text-align:center;
+  padding:18px;
+  background:#fff;
+  border:1px solid rgba(1,33,105,0.12);
+  border-radius:18px;
+  box-shadow:0 14px 34px rgba(0,0,0,0.06);
+}
 
+.aiTutorBtn{
+  border:none;
+  cursor:pointer;
+  font-weight:900;
+  border-radius:999px;
+  padding:14px 24px;
+  background:var(--blue);
+  color:#fff;
+  font-size:16px;
+  box-shadow:0 10px 24px rgba(1,33,105,0.18);
+}
+
+.aiTutorBtn:hover{
+  transform:translateY(-1px);
+  box-shadow:0 14px 28px rgba(1,33,105,0.22);
+}
+
+.aiTutorSub{
+  margin-top:10px;
+  color:var(--muted);
+  font-weight:800;
+  font-size:13px;
+}
     /* ALWAYS keep the greeting on ONE line */
   #dashTitle{
   font-size: clamp(18px, 2.0vw, 26px);
@@ -499,7 +532,14 @@
     <div class="card wide">
       <h1 class="yearHeading" id="dashTitle">Loading…</h1>
       <div class="dashWelcome" id="dashWelcome"></div>
-
+<div class="aiTutorBox">
+  <button class="aiTutorBtn" type="button" onclick="toggleAITutor()">
+    Ask Your Personal AI Tutor
+  </button>
+  <div class="aiTutorSub">
+    24/7 support for Maths, English and Verbal Reasoning
+  </div>
+</div>
       <!-- HELP VIDEO (opens under greeting) -->
       <div id="helpWrap" class="helpWrap" aria-hidden="true">
         <div class="helpHeader">
@@ -1135,7 +1175,9 @@ a.innerHTML = desc
         grid.appendChild(card);
       }
     }
-
+function toggleAITutor(){
+  alert("Your Personal AI Tutor is coming soon.");
+}
     (async () => {
       try {
         await buildDashboard();

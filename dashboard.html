@@ -1322,7 +1322,8 @@ function addAIMessage(text, who){
   messages.scrollTop = messages.scrollHeight;
 }
 
-function sendAITutorMessage(){
+<script>
+async function sendAITutorMessage(){
   const input = document.getElementById("aiTutorInput");
   const question = input.value.trim();
 
@@ -1331,11 +1332,35 @@ function sendAITutorMessage(){
   addAIMessage(question, "user");
   input.value = "";
 
-  addAIMessage(
-    "I’m nearly ready to help. The chat box is now working, and the AI connection will be added next.",
-    "bot"
-  );
+  addAIMessage("Thinking...", "bot");
+
+  try{
+    const res = await fetch("https://fpt-ai-beta.futureperfectlessons.workers.dev/ask", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        message: question
+      })
+    });
+
+    const data = await res.json();
+
+    const msgs = document.getElementById("aiTutorMessages");
+    msgs.lastElementChild.remove();
+
+    addAIMessage(data.reply || "No reply received.", "bot");
+
+  } catch(err){
+
+    const msgs = document.getElementById("aiTutorMessages");
+    msgs.lastElementChild.remove();
+
+    addAIMessage("Sorry, I could not connect right now.", "bot");
+  }
 }
+</script>
     (async () => {
       try {
         await buildDashboard();

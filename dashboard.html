@@ -1343,7 +1343,8 @@ async function sendAITutorMessage(){
     const res = await fetch("https://fpt-ai-beta.futureperfectlessons.workers.dev/ask", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "Authorization": authHeader()
       },
       body: JSON.stringify({
         message: question

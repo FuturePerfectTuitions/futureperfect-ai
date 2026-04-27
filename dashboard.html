@@ -633,12 +633,13 @@
       <h1 class="yearHeading" id="dashTitle">Loading…</h1>
       <div class="dashWelcome" id="dashWelcome"></div>
 <div class="aiTutorBox">
-  <button class="aiTutorBtn" type="button" onclick="toggleAITutor()">
+  <button class="aiTutorBtn" type="button" onclick="openAITutorTab()">
     Ask Your Personal AI Tutor
   </button>
   <div class="aiTutorSub">
     24/7 support for Maths, English and Verbal Reasoning
   </div>
+</div>
 
   <div id="aiTutorPanel" class="aiTutorPanel" aria-hidden="true">
     <div class="aiTutorHeader">
@@ -1298,79 +1299,8 @@ a.innerHTML = desc
         grid.appendChild(card);
       }
     }
-function toggleAITutor(){
-  const panel = document.getElementById("aiTutorPanel");
-  const isOpen = panel.classList.contains("on");
-
-  panel.classList.toggle("on", !isOpen);
-  panel.setAttribute("aria-hidden", isOpen ? "true" : "false");
-
-  if (!isOpen) {
-    panel.scrollIntoView({ behavior:"smooth", block:"start" });
-    setTimeout(() => {
-      document.getElementById("aiTutorInput").focus();
-    }, 250);
-  }
-}
-
-function addAIMessage(text, who){
-  const messages = document.getElementById("aiTutorMessages");
-  const div = document.createElement("div");
-  div.className = who === "user" ? "aiMsg aiMsgUser" : "aiMsg aiMsgBot";
-  div.textContent = text;
-  messages.appendChild(div);
-  messages.scrollTop = messages.scrollHeight;
-}
-
-async function sendAITutorMessage(){
-  const input = document.getElementById("aiTutorInput");
-  const question = input.value.trim();
-
-  const sendBtn = document.querySelector(".aiTutorSend");
-  if (sendBtn.disabled) return;
-
-  if (!question) return;
-
-  sendBtn.disabled = true;
-  sendBtn.textContent = "Thinking...";
-
-  addAIMessage(question, "user");
-  input.value = "";
-
-  addAIMessage("Thinking...", "bot");
-
-  try{
-    const res = await fetch("https://fpt-ai-beta.futureperfectlessons.workers.dev/ask", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": authHeader()
-      },
-      body: JSON.stringify({
-        message: question
-      })
-    });
-
-    const data = await res.json();
-
-    const msgs = document.getElementById("aiTutorMessages");
-    msgs.lastElementChild.remove();
-
-    addAIMessage(data.reply || "No reply received.", "bot");
-
-    sendBtn.disabled = false;
-    sendBtn.textContent = "Send";
-
-  } catch(err){
-
-    const msgs = document.getElementById("aiTutorMessages");
-    msgs.lastElementChild.remove();
-
-    addAIMessage("Sorry, I could not connect right now.", "bot");
-
-    sendBtn.disabled = false;
-    sendBtn.textContent = "Send";
-  }
+function openAITutorTab(){
+  window.open("ai-tutor.html", "_blank", "noopener,noreferrer");
 }
 
     (async () => {

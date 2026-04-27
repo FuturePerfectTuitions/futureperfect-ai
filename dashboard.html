@@ -1326,7 +1326,13 @@ async function sendAITutorMessage(){
   const input = document.getElementById("aiTutorInput");
   const question = input.value.trim();
 
+  const sendBtn = document.querySelector(".aiTutorSend");
+  if (sendBtn.disabled) return;
+
   if (!question) return;
+
+  sendBtn.disabled = true;
+  sendBtn.textContent = "Thinking...";
 
   addAIMessage(question, "user");
   input.value = "";
@@ -1351,12 +1357,18 @@ async function sendAITutorMessage(){
 
     addAIMessage(data.reply || "No reply received.", "bot");
 
+    sendBtn.disabled = false;
+    sendBtn.textContent = "Send";
+
   } catch(err){
 
     const msgs = document.getElementById("aiTutorMessages");
     msgs.lastElementChild.remove();
 
     addAIMessage("Sorry, I could not connect right now.", "bot");
+
+    sendBtn.disabled = false;
+    sendBtn.textContent = "Send";
   }
 }
 

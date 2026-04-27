@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Personal AI Tutor</title>
+  <link rel="stylesheet" href="shared.css" />
+  <link rel="icon" href="/favicon.ico">
+
+  <style>
+    .aiPage{
+      max-width:900px;
+      margin:24px auto;
+      padding:0 14px;
+    }
+
+    .aiTutorPanel{
+      background:#fff;
+      border:1px solid rgba(1,33,105,0.12);
+      border-radius:18px;
+      box-shadow:0 14px 34px rgba(0,0,0,0.06);
+      padding:18px;
+    }
+
+    .aiTutorHeader{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:12px;
+    }
+
+    .aiTutorTitle{
+      font-weight:900;
+      color:var(--blue);
+      font-size:22px;
+    }
+
+    .aiTutorMessages{
+      background:#f8fafc;
+      border:1px solid rgba(0,0,0,0.08);
+      border-radius:16px;
+      padding:14px;
+      min-height:420px;
+      max-height:65vh;
+      overflow-y:auto;
+    }
+
+    .aiMsg{
+      padding:12px 14px;
+      border-radius:14px;
+      margin:10px 0;
+      line-height:1.5;
+      font-weight:700;
+      white-space:pre-line;
+    }
+
+    .aiMsgBot{
+      background:#fff;
+      color:var(--text);
+      border:1px solid rgba(1,33,105,0.10);
+    }
+
+    .aiMsgUser{
+      background:var(--blue);
+      color:#fff;
+      margin-left:80px;
+    }
+
+    .aiTutorInputRow{
+      display:flex;
+      gap:10px;
+      margin-top:12px;
+      align-items:stretch;
+    }
+
+    .aiTutorInput{
+      flex:1;
+      resize:vertical;
+      min-height:80px;
+      border-radius:14px;
+      border:1px solid rgba(0,0,0,0.12);
+      padding:12px;
+      font-size:15px;
+      font-family:inherit;
+      font-weight:700;
+    }
+
+    .aiTutorSend{
+      border:none;
+      cursor:pointer;
+      font-weight:900;
+      border-radius:14px;
+      padding:0 24px;
+      background:var(--red);
+      color:#fff;
+      font-size:15px;
+    }
+
+    .btnPlain{
+      border:1px solid rgba(0,0,0,0.10);
+      background:#fff;
+      padding:10px 14px;
+      border-radius:12px;
+      font-weight:900;
+      cursor:pointer;
+      color:var(--text);
+    }
+
+    @media (max-width: 640px){
+      .aiTutorInputRow{
+        flex-direction:column;
+      }
+
+      .aiTutorSend{
+        padding:14px 18px;
+      }
+
+      .aiMsgUser{
+        margin-left:0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="topbar">
+    <a href="dashboard.html" class="topbarLogoLink">
+      <img src="assets/fpt-logo.png" class="topbarLogo" alt="Future Perfect Tuitions" />
+    </a>
+
+    <button class="topbarLogout" onclick="window.close()">Close</button>
+  </div>
+
+  <main class="aiPage">
+    <div class="aiTutorPanel">
+      <div class="aiTutorHeader">
+        <div class="aiTutorTitle">Your Personal AI Tutor</div>
+        <button class="btnPlain" type="button" onclick="clearChat()">Clear Chat</button>
+      </div>
+
+      <div id="aiTutorMessages" class="aiTutorMessages">
+        <div class="aiMsg aiMsgBot">
+          Hello, I’m your Future Perfect AI Tutor. Ask me about Maths, English, Verbal Reasoning, homework, or your lessons.
+        </div>
+      </div>
+
+      <div class="aiTutorInputRow">
+        <textarea
+          id="aiTutorInput"
+          class="aiTutorInput"
+          rows="3"
+          placeholder="Type your question here..."
+        ></textarea>
+
+        <button class="aiTutorSend" type="button" onclick="sendAITutorMessage()">Send</button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const WORKER_BASE = "https://fpt-ai-beta.futureperfectlessons.workers.dev";
+
+    const username = sessionStorage.getItem("fpt_user");
+    const password = sessionStorage.getItem("fpt_pass");
+
+    if (!username || !password) {
+      location.href = "index.html";
+    }
+
+    function authHeader() {
+      return "Basic " + btoa(username + ":" + password);
+    }
+
+    function addAIMessage(text, who){
+      const messages = document.getElementById("aiTutorMessages");
+      const div = document.createElement("div");
+      div.className = who === "user" ? "aiMsg aiMsgUser" : "aiMsg aiMsgBot";
+      div.textContent = text;
+      messages.appendChild(div);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    function clearChat(){
+      const messages = document.getElementById("aiTutorMessages");
+      messages.innerHTML = `
+        <div class="aiMsg aiMsgBot">
+          Hello, I’m your Future Perfect AI Tutor. Ask me about Maths, English, Verbal Reasoning, homework, or your lessons.
+        </div>
+      `;
+    }
+
+    async function sendAITutorMessage(){
+      const input = document.getElementById("aiTutorInput");
+      const question = input.value.trim();
+
+      const sendBtn = document.querySelector(".aiTutorSend");
+      if (sendBtn.disabled) return;
+      if (!question) return;
+
+      sendBtn.disabled = true;
+      sendBtn.textContent = "Thinking...";
+
+      addAIMessage(question, "user");
+      input.value = "";
+
+      addAIMessage("Thinking...", "bot");
+
+      try {
+        const res = await fetch(`${WORKER_BASE}/ask`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": authHeader()
+          },
+          body: JSON.stringify({
+            message: question
+          })
+        });
+
+        const data = await res.json();
+
+        const msgs = document.getElementById("aiTutorMessages");
+        msgs.lastElementChild.remove();
+
+        addAIMessage(data.reply || "No reply received.", "bot");
+
+      } catch(err) {
+        const msgs = document.getElementById("aiTutorMessages");
+        msgs.lastElementChild.remove();
+
+        addAIMessage("Sorry, I could not connect right now.", "bot");
+      }
+
+      sendBtn.disabled = false;
+      sendBtn.textContent = "Send";
+      input.focus();
+    }
+
+    document.getElementById("aiTutorInput").addEventListener("keydown", function(e){
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendAITutorMessage();
+      }
+    });
+
+    window.addEventListener("load", () => {
+      document.getElementById("aiTutorInput").focus();
+    });
+  </script>
+</body>
+</html>

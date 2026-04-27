@@ -10,8 +10,8 @@
   <link rel="icon" type="image/x-icon" href="ai-favicon.ico" />
   <link rel="icon" type="image/png" sizes="16x16" href="ai-favicon-16x16.png" />
   <link rel="icon" type="image/png" sizes="32x32" href="ai-favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="ai-android-chrome-192x192.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="ai-apple-touch-icon.png" />
-  <link rel="manifest" href="site.webmanifest" />
 
   <style>
     .aiPage{
@@ -137,8 +137,8 @@
       </div>
 
       <div id="aiTutorMessages" class="aiTutorMessages">
-        <div class="aiMsg aiMsgBot">
-          Hello, I’m your Future Perfect AI Tutor. Ask me about Maths, English, Verbal Reasoning, homework, or your lessons.
+        <div class="aiMsg aiMsgBot" id="aiGreeting">
+          Hi, I’m your Future Perfect AI Tutor, ready to help. What would you like help with today from your Future Perfect Tuitions subjects?
         </div>
       </div>
 
@@ -161,6 +161,34 @@
       return "Basic " + btoa(username + ":" + password);
     }
 
+    function firstNameOf(name){
+      const s = String(name || "").trim();
+      if (!s) return "";
+      return s.split(/\s+/)[0];
+    }
+
+    async function loadTutorPageName(){
+      try{
+        const res = await fetch(WORKER_BASE + "/me", {
+          headers:{ "Authorization": authHeader() }
+        });
+
+        if (!res.ok) return;
+
+        const me = await res.json();
+        const first = firstNameOf(me.name || me.username || username) || "there";
+
+        document.title = first + "'s Personal AI Tutor";
+
+        const greeting = document.getElementById("aiGreeting");
+        if (greeting) {
+          greeting.textContent = "Hi " + first + ", I’m your Future Perfect AI Tutor, ready to help. What would you like help with today from your Future Perfect Tuitions subjects?";
+        }
+      }catch(err){
+        // Keep default title and greeting if /me cannot be reached.
+      }
+    }
+
     function addAIMessage(text, who){
       const messages = document.getElementById("aiTutorMessages");
       const div = document.createElement("div");
@@ -171,10 +199,12 @@
     }
 
     function clearChat(){
-      document.getElementById("aiTutorMessages").innerHTML = `
-        <div class="aiMsg aiMsgBot">
-          Hello, I’m your Future Perfect AI Tutor. Ask me about Maths, English, Verbal Reasoning, homework, or your lessons.
+      const messages = document.getElementById("aiTutorMessages");
+      messages.innerHTML = `
+        <div class="aiMsg aiMsgBot" id="aiGreeting">
+          Hi, I’m your Future Perfect AI Tutor, ready to help. What would you like help with today from your Future Perfect Tuitions subjects?
         </div>`;
+      loadTutorPageName();
     }
 
     async function sendAITutorMessage(){
@@ -222,6 +252,7 @@
     });
 
     window.addEventListener("load", ()=>{
+      loadTutorPageName();
       document.getElementById("aiTutorInput").focus();
     });
   </script>
